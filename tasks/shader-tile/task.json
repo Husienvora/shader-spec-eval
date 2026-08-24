@@ -1,0 +1,7 @@
+{
+  "id": "shader-tile",
+  "description": "L3 spatial: UV repetition. Requires fract/modulo reasoning.",
+  "prompt": "Write a GLSL ES 3.0 fragment shader in shader.glsl implementing mainImage(out vec4 fragColor, in vec2 fragCoord). iResolution (vec3) and iTime (float) are provided; do not redeclare them and do not write main(). Requirements: (1) draw a checkerboard that repeats EXACTLY 8 times across the width and 8 times down the height; (2) squares must alternate between near-black and a bright green, with hard edges and no blur; (3) the pattern must not change with iTime; (4) no NaN output.",
+  "context": ["*.glsl", "*.json"],
+  "verify": ["python", "-m", "shader_spec_eval.shader.verify", "shader_spec.json"]
+}

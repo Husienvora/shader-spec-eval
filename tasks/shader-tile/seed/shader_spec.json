@@ -1,0 +1,57 @@
+{
+  "file": "shader.glsl",
+  "size": 256,
+  "times": [
+    0.0,
+    0.7,
+    1.3,
+    2.0
+  ],
+  "properties": [
+    {
+      "check": "not_blank"
+    },
+    {
+      "check": "no_nan_artifacts"
+    },
+    {
+      "check": "tiles",
+      "count": 8,
+      "axis": "x",
+      "tol": 18.0,
+      "period_cells": 2
+    },
+    {
+      "check": "distinct_bands",
+      "count": 8,
+      "axis": "x",
+      "tol": 0
+    },
+    {
+      "check": "distinct_bands",
+      "count": 8,
+      "axis": "y",
+      "tol": 0
+    },
+    {
+      "check": "tiles",
+      "count": 8,
+      "axis": "y",
+      "tol": 18.0,
+      "period_cells": 2
+    },
+    {
+      "check": "sharp_edges",
+      "min_ratio": 0.01
+    },
+    {
+      "check": "dominant_channel",
+      "channel": "g",
+      "margin": 10
+    },
+    {
+      "check": "stable_over_time",
+      "max_delta": 3.0
+    }
+  ]
+}

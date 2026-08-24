@@ -1,0 +1,7 @@
+{
+  "id": "shader-pulse",
+  "description": "Objective quality eval for visual code. Properties, not pixel diffing.",
+  "prompt": "Write a GLSL ES 3.0 fragment shader in shader.glsl implementing mainImage(out vec4 fragColor, in vec2 fragCoord). Uniforms iResolution (vec3) and iTime (float) are provided; do not redeclare them and do not write a main() function. Requirements: (1) a radial pulse centred in the frame, brightest at the centre and falling off toward the corners; (2) the image must be symmetric both horizontally and vertically; (3) the pulse must animate with iTime so frames at different times visibly differ; (4) the overall colour must be predominantly blue; (5) no NaN or fully black output.",
+  "context": ["*.glsl", "*.json"],
+  "verify": ["python", "-m", "shader_spec_eval.shader.verify", "shader_spec.json"]
+}

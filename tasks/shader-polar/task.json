@@ -1,0 +1,7 @@
+{
+  "id": "shader-polar",
+  "description": "L5 spatial: polar coordinates and angular repetition. Hardest tier.",
+  "prompt": "Write a GLSL ES 3.0 fragment shader in shader.glsl implementing mainImage(out vec4 fragColor, in vec2 fragCoord). iResolution (vec3) and iTime (float) are provided; do not redeclare them and do not write main(). Requirements: (1) convert to polar coordinates about the centre of the frame; (2) draw a star/flower pattern with EXACTLY 6-fold rotational symmetry, meaning the image is unchanged when rotated 60 degrees about the centre; (3) brightness must fall off away from the centre; (4) the pattern must rotate slowly with iTime so frames at different times differ; (5) predominantly cyan; (6) no NaN output.",
+  "context": ["*.glsl", "*.json"],
+  "verify": ["python", "-m", "shader_spec_eval.shader.verify", "shader_spec.json"]
+}

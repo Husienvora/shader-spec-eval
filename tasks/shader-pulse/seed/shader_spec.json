@@ -1,0 +1,41 @@
+{
+  "file": "shader.glsl",
+  "size": 256,
+  "times": [
+    0.0,
+    0.7,
+    1.4,
+    2.1
+  ],
+  "properties": [
+    {
+      "check": "not_blank"
+    },
+    {
+      "check": "no_nan_artifacts"
+    },
+    {
+      "check": "radial_falloff",
+      "min_delta": 20.0
+    },
+    {
+      "check": "symmetric",
+      "kind": "horizontal",
+      "tol": 14.0
+    },
+    {
+      "check": "symmetric",
+      "kind": "vertical",
+      "tol": 14.0
+    },
+    {
+      "check": "dominant_channel",
+      "channel": "b",
+      "margin": 10
+    },
+    {
+      "check": "animates",
+      "min_delta": 4.0
+    }
+  ]
+}

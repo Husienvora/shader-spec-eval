@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="480" viewBox="0 0 1600 480" role="img" aria-labelledby="title desc">
+  <title id="title">Shader Spec Eval</title>
+  <desc id="desc">A minimalist diagram showing a written specification becoming a rendered shader and verified properties.</desc>
+  <defs>
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#70e1c3"/>
+      <stop offset="1" stop-color="#8ea8ff"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#ffffff" stroke-opacity=".035"/>
+    </pattern>
+    <filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="1600" height="480" rx="28" fill="#0b0e13"/>
+  <rect width="1600" height="480" rx="28" fill="url(#grid)"/>
+  <circle cx="1320" cy="105" r="150" fill="#70e1c3" opacity=".08" filter="url(#soft)"/>
+  <circle cx="1440" cy="390" r="190" fill="#8ea8ff" opacity=".09" filter="url(#soft)"/>
+
+  <g transform="translate(96 94)">
+    <rect width="76" height="76" rx="18" fill="none" stroke="url(#ink)" stroke-width="4"/>
+    <path d="M20 53 35 22l9 19 7-12 9 24" fill="none" stroke="url(#ink)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="58" cy="20" r="5" fill="#70e1c3"/>
+  </g>
+
+  <text x="204" y="134" fill="#f5f7fa" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="58" font-weight="700" letter-spacing="-2">Shader Spec Eval</text>
+  <text x="204" y="178" fill="#98a2b3" font-family="ui-sans-serif, system-ui, sans-serif" font-size="24">Executable visual specifications for generated GLSL</text>
+
+  <g transform="translate(204 278)" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18">
+    <rect width="250" height="72" rx="12" fill="#111720" stroke="#273140"/>
+    <text x="24" y="31" fill="#70e1c3" font-size="13" letter-spacing="2">SPEC</text>
+    <text x="24" y="55" fill="#d8dee9">exactly 6-fold</text>
+    <path d="M270 36h72" stroke="#4b5565" stroke-width="2"/>
+    <path d="m335 29 9 7-9 7" fill="none" stroke="#4b5565" stroke-width="2"/>
+
+    <rect x="364" width="250" height="72" rx="12" fill="#111720" stroke="#273140"/>
+    <text x="388" y="31" fill="#8ea8ff" font-size="13" letter-spacing="2">RENDER</text>
+    <g transform="translate(560 36)" fill="none" stroke="url(#ink)" stroke-width="2">
+      <path d="M0-22 7-8 22-11 13 1 22 13 7 10 0 24-7 10-22 13-13 1-22-11-7-8Z"/>
+      <circle r="7"/>
+    </g>
+    <path d="M634 36h72" stroke="#4b5565" stroke-width="2"/>
+    <path d="m699 29 9 7-9 7" fill="none" stroke="#4b5565" stroke-width="2"/>
+
+    <rect x="728" width="360" height="72" rx="12" fill="#111720" stroke="#273140"/>
+    <text x="752" y="31" fill="#70e1c3" font-size="13" letter-spacing="2">VERIFY</text>
+    <text x="752" y="55" fill="#d8dee9">symmetry · color · time</text>
+    <circle cx="1054" cy="36" r="11" fill="#70e1c3" opacity=".15"/>
+    <path d="m1048 36 4 4 8-10" fill="none" stroke="#70e1c3" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+  <text x="204" y="414" fill="#667085" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" letter-spacing="1.5">NO REFERENCE IMAGE · NO LLM JUDGE · EXPERIMENTAL</text>
+</svg>

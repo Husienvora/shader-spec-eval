@@ -1,0 +1,7 @@
+{
+  "id": "shader-sdf",
+  "description": "L4 spatial: signed distance field. Implicit geometry with hard edges.",
+  "prompt": "Write a GLSL ES 3.0 fragment shader in shader.glsl implementing mainImage(out vec4 fragColor, in vec2 fragCoord). iResolution (vec3) and iTime (float) are provided; do not redeclare them and do not write main(). Requirements: (1) using a signed distance function, draw a filled circle centred in the frame with a radius of 30% of the smaller frame dimension; (2) the circle must be bright orange, the background near-black, with a hard edge (no soft gradient falloff); (3) the image must be symmetric horizontally and vertically; (4) it must not change with iTime; (5) no NaN output.",
+  "context": ["*.glsl", "*.json"],
+  "verify": ["python", "-m", "shader_spec_eval.shader.verify", "shader_spec.json"]
+}

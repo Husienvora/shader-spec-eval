@@ -1,0 +1,12 @@
+{
+  "file": "shader.glsl",
+  "size": 256,
+  "times": [0.0, 1.1, 2.3, 3.5],
+  "properties": [
+    {"check": "not_blank"},
+    {"check": "no_nan_artifacts"},
+    {"check": "gradient_along", "axis": "x", "direction": "increasing", "min_delta": 25.0},
+    {"check": "dominant_channel", "channel": "r", "margin": 12},
+    {"check": "stable_over_time", "max_delta": 3.0}
+  ]
+}

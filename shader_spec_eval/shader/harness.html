@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>shader harness</title>
+<style>html,body{margin:0;background:#000}canvas{display:block}</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+// Deterministic fragment-shader harness.
+//
+// Renders a candidate fragment shader on a full-screen quad at a fixed
+// resolution and a fixed uTime, then hands the raw pixels back to the driver.
+// Nothing here is random and nothing depends on wall-clock time, so two runs on
+// two machines produce identical bytes.
+
+const VERT = `#version 300 es
+in vec2 aPos;
+void main() { gl_Position = vec4(aPos, 0.0, 1.0); }`;
+
+// Shadertoy-style aliases so models can write in the idiom they know best.
+const PRELUDE = `#version 300 es
+precision highp float;
+uniform vec3  iResolution;
+uniform float iTime;
+out vec4 fragColorOut;
+#define uResolution iResolution
+#define uTime iTime
+`;
+
+const EPILOGUE = `
+void main() {
+  vec4 c = vec4(0.0);
+  mainImage(c, gl_FragCoord.xy);
+  fragColorOut = c;
+}`;
+
+window.renderShader = function (source, opts) {
+  const size = opts.size || 256;
+  const time = opts.time === undefined ? 0.0 : opts.time;
+
+  // A fresh canvas per render. Reusing one canvas across renders loses the
+  // context on SwiftShader, which surfaces as a bogus 'vertex compile failed'.
+  const host = document.getElementById('c').parentNode;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  canvas.style.display = 'none';
+  host.appendChild(canvas);
+
+  const gl = canvas.getContext('webgl2', {
+    preserveDrawingBuffer: true,
+    antialias: false,
+    depth: false,
+    stencil: false,
+  });
+  if (!gl) { canvas.remove(); return { ok: false, stage: 'context', log: 'no webgl2 context' }; }
+  if (gl.isContextLost()) { canvas.remove(); return { ok: false, stage: 'context', log: 'context lost immediately' }; }
+
+  // Release the context explicitly when we are done with this frame.
+  const release = () => {
+    const ext = gl.getExtension('WEBGL_lose_context');
+    if (ext) ext.loseContext();
+    canvas.remove();
+  };
+
+  // If the model wrote a bare mainImage, wrap it. If it wrote a full shader
+  // with its own main(), use it as-is. Both are legitimate answers.
+  const hasMain = /\bvoid\s+main\s*\(/.test(source);
+  const hasMainImage = /\bvoid\s+mainImage\s*\(/.test(source);
+  let frag;
+  if (hasMainImage && !hasMain) {
+    frag = PRELUDE + '\n' + source + '\n' + EPILOGUE;
+  } else if (source.trim().startsWith('#version')) {
+    frag = source;
+  } else {
+    frag = PRELUDE + '\n' + source;
+  }
+
+  function compile(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+      return { err: gl.getShaderInfoLog(s) || 'unknown compile error' };
+    }
+    return { shader: s };
+  }
+
+  const vs = compile(gl.VERTEX_SHADER, VERT);
+  if (vs.err) { release(); return { ok: false, stage: 'vertex', log: vs.err }; }
+
+  const fs = compile(gl.FRAGMENT_SHADER, frag);
+  if (fs.err) { release(); return { ok: false, stage: 'fragment', log: fs.err, source: frag }; }
+
+  const prog = gl.createProgram();
+  gl.attachShader(prog, vs.shader);
+  gl.attachShader(prog, fs.shader);
+  gl.bindAttribLocation(prog, 0, 'aPos');
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    const log = gl.getProgramInfoLog(prog) || 'link failed';
+    release();
+    return { ok: false, stage: 'link', log: log };
+  }
+  gl.useProgram(prog);
+
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER,
+    new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+  const uRes = gl.getUniformLocation(prog, 'iResolution');
+  const uTime = gl.getUniformLocation(prog, 'iTime');
+  if (uRes) gl.uniform3f(uRes, size, size, 1.0);
+  if (uTime) gl.uniform1f(uTime, time);
+
+  gl.viewport(0, 0, size, size);
+  gl.clearColor(0, 0, 0, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+  const err = gl.getError();
+  if (err !== gl.NO_ERROR) { release(); return { ok: false, stage: 'draw', log: 'gl error ' + err }; }
+
+  const pixels = new Uint8Array(size * size * 4);
+  gl.readPixels(0, 0, size, size, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+  release();
+
+  return {
+    ok: true,
+    size: size,
+    time: time,
+    // Plain array so it survives the bridge to Python intact.
+    pixels: Array.from(pixels),
+  };
+};
+</script>
+</body>
+</html>
