@@ -1,0 +1,7 @@
+{
+  "id": "shader-grid",
+  "description": "Anisotropic repetition: a six-by-four checkerboard.",
+  "prompt": "Write a GLSL ES 3.0 fragment shader implementing mainImage(out vec4 fragColor, in vec2 fragCoord). iResolution (vec3) and iTime (float) are provided; do not redeclare them and do not write main(). Requirements: (1) draw a checkerboard with EXACTLY six columns and four rows; (2) cells alternate near-black and bright yellow with hard edges; (3) the grid fills the frame; (4) it is static and ignores iTime; (5) no NaN output.",
+  "context": ["*.glsl", "*.json"],
+  "verify": ["python", "-m", "shader_spec_eval.shader.verify", "shader_spec.json"]
+}

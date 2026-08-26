@@ -1,0 +1,7 @@
+{
+  "id": "shader-bands",
+  "description": "Discrete quantisation: exactly five increasing vertical bands.",
+  "prompt": "Write a GLSL ES 3.0 fragment shader implementing mainImage(out vec4 fragColor, in vec2 fragCoord). iResolution (vec3) and iTime (float) are provided; do not redeclare them and do not write main(). Requirements: (1) divide the frame into EXACTLY five equal-width vertical bands; (2) each band has a flat grayscale brightness and brightness strictly increases from the leftmost to the rightmost band; (3) boundaries are hard; (4) the output is static and ignores iTime; (5) no NaN output.",
+  "context": ["*.glsl", "*.json"],
+  "verify": ["python", "-m", "shader_spec_eval.shader.verify", "shader_spec.json"]
+}

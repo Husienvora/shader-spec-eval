@@ -1,0 +1,7 @@
+{
+  "id": "shader-ring",
+  "description": "Two-boundary geometry: a centered annulus with exact radii.",
+  "prompt": "Write a GLSL ES 3.0 fragment shader implementing mainImage(out vec4 fragColor, in vec2 fragCoord). iResolution (vec3) and iTime (float) are provided; do not redeclare them and do not write main(). Requirements: (1) draw a centered filled blue ring; (2) inner radius is 0.18 and outer radius is 0.30 of frame height; (3) the center and outside are near-black; (4) both boundaries are hard; (5) the shader is static and ignores iTime; (6) no NaN output.",
+  "context": ["*.glsl", "*.json"],
+  "verify": ["python", "-m", "shader_spec_eval.shader.verify", "shader_spec.json"]
+}

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 470" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" role="img" aria-label="Compile rate versus full property compliance for four models">
+<rect width="880" height="470" rx="12" fill="#fcfcfb" stroke="rgba(11,11,11,0.10)"/>
+<text x="32" y="42" font-size="19" font-weight="700" fill="#0b0b0b">Compiled is not the same as correct</text>
+<text x="32" y="64" font-size="12.5" fill="#52514e">600 generations — 4 models × 15 tasks × 10 seeds · temperature 0.7 · first attempt only</text>
+<rect x="683.4" y="33" width="11" height="11" rx="2.5" fill="#eb6834"/>
+<text x="700.4" y="43" font-size="12" fill="#52514e">Passed every property</text>
+<rect x="604.6" y="33" width="11" height="11" rx="2.5" fill="#2a78d6"/>
+<text x="621.6" y="43" font-size="12" fill="#52514e">Compiled</text>
+<line x1="168" y1="86" x2="168" y2="382" stroke="#c3c2b7" stroke-width="1"/>
+<text x="168" y="402" font-size="11" fill="#898781" text-anchor="middle">0%</text>
+<line x1="303" y1="86" x2="303" y2="382" stroke="#e1e0d9" stroke-width="1"/>
+<text x="303" y="402" font-size="11" fill="#898781" text-anchor="middle">25%</text>
+<line x1="438" y1="86" x2="438" y2="382" stroke="#e1e0d9" stroke-width="1"/>
+<text x="438" y="402" font-size="11" fill="#898781" text-anchor="middle">50%</text>
+<line x1="573" y1="86" x2="573" y2="382" stroke="#e1e0d9" stroke-width="1"/>
+<text x="573" y="402" font-size="11" fill="#898781" text-anchor="middle">75%</text>
+<line x1="708" y1="86" x2="708" y2="382" stroke="#e1e0d9" stroke-width="1"/>
+<text x="708" y="402" font-size="11" fill="#898781" text-anchor="middle">100%</text>
+<text x="154" y="110" font-size="13.5" font-weight="600" fill="#0b0b0b" text-anchor="end">qwen3-coder</text>
+<text x="154" y="127" font-size="11" fill="#898781" text-anchor="end">$0.04 total</text>
+<path d="M 168 96 h 536 a 4 4 0 0 1 4 4 v 8 a 4 4 0 0 1 -4 4 h -536 z" fill="#2a78d6"/>
+<path d="M 168 115 h 420.98 a 4 4 0 0 1 4 4 v 8 a 4 4 0 0 1 -4 4 h -420.98 z" fill="#eb6834"/>
+<text x="716" y="108" font-size="12" fill="#52514e">100%</text>
+<line x1="570.3" y1="123" x2="615.6600000000001" y2="123" stroke="#52514e" stroke-width="1.5"/>
+<line x1="570.3" y1="119" x2="570.3" y2="127" stroke="#52514e" stroke-width="1.5"/>
+<line x1="615.6600000000001" y1="119" x2="615.6600000000001" y2="127" stroke="#52514e" stroke-width="1.5"/>
+<text x="623.6600000000001" y="127" font-size="12" fill="#52514e">79% ± 4</text>
+<text x="154" y="186" font-size="13.5" font-weight="600" fill="#0b0b0b" text-anchor="end">gemini-3.7-flash</text>
+<text x="154" y="203" font-size="11" fill="#898781" text-anchor="end">$0.32 total</text>
+<path d="M 168 172 h 492.8 a 4 4 0 0 1 4 4 v 8 a 4 4 0 0 1 -4 4 h -492.8 z" fill="#2a78d6"/>
+<path d="M 168 191 h 399.38 a 4 4 0 0 1 4 4 v 8 a 4 4 0 0 1 -4 4 h -399.38 z" fill="#eb6834"/>
+<text x="672.8" y="184" font-size="12" fill="#52514e">92%</text>
+<line x1="556.26" y1="199" x2="586.5" y2="199" stroke="#52514e" stroke-width="1.5"/>
+<line x1="556.26" y1="195" x2="556.26" y2="203" stroke="#52514e" stroke-width="1.5"/>
+<line x1="586.5" y1="195" x2="586.5" y2="203" stroke="#52514e" stroke-width="1.5"/>
+<text x="594.5" y="203" font-size="12" fill="#52514e">75% ± 3</text>
+<text x="154" y="262" font-size="13.5" font-weight="600" fill="#0b0b0b" text-anchor="end">grok-4.5</text>
+<text x="154" y="279" font-size="11" fill="#898781" text-anchor="end">$0.63 total</text>
+<path d="M 168 248 h 528.98 a 4 4 0 0 1 4 4 v 8 a 4 4 0 0 1 -4 4 h -528.98 z" fill="#2a78d6"/>
+<path d="M 168 267 h 352.40000000000003 a 4 4 0 0 1 4 4 v 8 a 4 4 0 0 1 -4 4 h -352.40000000000003 z" fill="#eb6834"/>
+<text x="708.98" y="260" font-size="12" fill="#52514e">99%</text>
+<line x1="503.88" y1="275" x2="544.92" y2="275" stroke="#52514e" stroke-width="1.5"/>
+<line x1="503.88" y1="271" x2="503.88" y2="279" stroke="#52514e" stroke-width="1.5"/>
+<line x1="544.92" y1="271" x2="544.92" y2="279" stroke="#52514e" stroke-width="1.5"/>
+<text x="552.92" y="279" font-size="12" fill="#52514e">66% ± 4</text>
+<text x="154" y="338" font-size="13.5" font-weight="600" fill="#0b0b0b" text-anchor="end">kimi-k2.7-code</text>
+<text x="154" y="355" font-size="11" fill="#898781" text-anchor="end">$0.64 total</text>
+<path d="M 168 324 h 388.58 a 4 4 0 0 1 4 4 v 8 a 4 4 0 0 1 -4 4 h -388.58 z" fill="#2a78d6"/>
+<path d="M 168 343 h 269.78000000000003 a 4 4 0 0 1 4 4 v 8 a 4 4 0 0 1 -4 4 h -269.78000000000003 z" fill="#eb6834"/>
+<text x="568.5799999999999" y="336" font-size="12" fill="#52514e">73%</text>
+<line x1="385.08000000000004" y1="351" x2="498.48" y2="351" stroke="#52514e" stroke-width="1.5"/>
+<line x1="385.08000000000004" y1="347" x2="385.08000000000004" y2="355" stroke="#52514e" stroke-width="1.5"/>
+<line x1="498.48" y1="347" x2="498.48" y2="355" stroke="#52514e" stroke-width="1.5"/>
+<text x="506.48" y="355" font-size="12" fill="#52514e">51% ± 11</text>
+<text x="32" y="448" font-size="11" fill="#898781">Whiskers: ±1 standard deviation of the full-compliance rate across 10 seeds. "Passed every property" requires compiling and satisfying every check in the task's hidden spec.</text>
+</svg>

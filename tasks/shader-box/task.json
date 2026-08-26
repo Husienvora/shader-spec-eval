@@ -1,0 +1,7 @@
+{
+  "id": "shader-box",
+  "description": "Axis-aligned geometry with independently specified width and height.",
+  "prompt": "Write a GLSL ES 3.0 fragment shader implementing mainImage(out vec4 fragColor, in vec2 fragCoord). iResolution (vec3) and iTime (float) are provided; do not redeclare them and do not write main(). Requirements: (1) draw a centered filled yellow axis-aligned rectangle; (2) its half-width is 0.30 and half-height is 0.15 of frame height; (3) use a near-black background and hard edges; (4) the shader is static and ignores iTime; (5) no NaN output.",
+  "context": ["*.glsl", "*.json"],
+  "verify": ["python", "-m", "shader_spec_eval.shader.verify", "shader_spec.json"]
+}

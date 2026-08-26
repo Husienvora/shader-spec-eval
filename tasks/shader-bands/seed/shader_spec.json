@@ -1,0 +1,10 @@
+{
+  "file": "shader.glsl", "size": 256, "times": [0.0, 0.9, 1.8],
+  "properties": [
+    {"check": "not_blank"}, {"check": "no_nan_artifacts"},
+    {"check": "distinct_bands", "count": 5, "axis": "x", "tol": 0},
+    {"check": "gradient_along", "axis": "x", "direction": "increasing", "min_delta": 100.0},
+    {"check": "sharp_edges", "min_ratio": 0.01, "min_gradient": 50.0},
+    {"check": "stable_over_time", "max_delta": 3.0}
+  ]
+}

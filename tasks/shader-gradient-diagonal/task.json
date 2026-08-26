@@ -1,0 +1,7 @@
+{
+  "id": "shader-gradient-diagonal",
+  "description": "Coordinate composition: a static diagonal green gradient.",
+  "prompt": "Write a GLSL ES 3.0 fragment shader implementing mainImage(out vec4 fragColor, in vec2 fragCoord). iResolution (vec3) and iTime (float) are provided; do not redeclare them and do not write main(). Requirements: (1) brightness must increase both from left to right and from bottom to top, producing a diagonal gradient; (2) the result must be predominantly green; (3) it must not change with iTime; (4) no NaN or fully black output.",
+  "context": ["*.glsl", "*.json"],
+  "verify": ["python", "-m", "shader_spec_eval.shader.verify", "shader_spec.json"]
+}

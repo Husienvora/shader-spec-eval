@@ -30,6 +30,9 @@ class Usage:
     output_tokens: int = 0
     thinking_tokens: int = 0
     seconds: float = 0.0
+    cost_usd: float = 0.0
+    resolved_model: str = ""
+    provider_name: str = ""
 
 
 DEFAULT_BASES = {
@@ -95,12 +98,12 @@ def call(spec: ModelSpec, prompt: str, system: str, cfg: Config,
     for attempt in range(retries):
         try:
             return _call_once(spec, prompt, system, cfg)
-        except RuntimeError as exc:
+        except (RuntimeError, TimeoutError, urllib.error.URLError) as exc:
             last = exc
             message = str(exc).lower()
-            transient = any(token in message for token in (
+            transient = not isinstance(exc, RuntimeError) or any(token in message for token in (
                 "429", "500", "502", "503", "resource_exhausted", "unavailable",
-                "overloaded", "rate limit", "temporarily"))
+                "overloaded", "rate limit", "temporarily", "timed out"))
             if not transient:
                 raise
             delay = min(cfg.retry_base_delay * (2 ** attempt), 60.0)
@@ -149,24 +152,33 @@ def _call_once(spec: ModelSpec, prompt: str, system: str,
     if spec.provider == "openrouter":
         headers.update({"HTTP-Referer": "https://github.com/Husienvora/shader-spec-eval",
                         "X-Title": "Shader Spec Eval"})
-    data = _post(f"{spec.base_url}/chat/completions", {
+    payload = {
         "model": spec.model,
         "messages": [{"role": "system", "content": system},
                      {"role": "user", "content": prompt}],
         "max_tokens": cfg.max_output_tokens,
         "temperature": cfg.sampling_temperature,
         "seed": cfg.sampling_seed,
-    }, headers, cfg.request_timeout_s)
+    }
+    if spec.provider == "openrouter":
+        payload["provider"] = {"allow_fallbacks": cfg.openrouter_allow_fallbacks}
+        payload["usage"] = {"include": True}
+    data = _post(f"{spec.base_url}/chat/completions", payload,
+                 headers, cfg.request_timeout_s)
     choices = data.get("choices") or []
     if not choices:
         raise RuntimeError(f"no choices returned: {str(data)[:200]}")
     usage = data.get("usage", {}) or {}
     details = usage.get("completion_tokens_details") or {}
-    return (choices[0].get("message") or {}).get("content", ""), Usage(
+    content = (choices[0].get("message") or {}).get("content")
+    return str(content or ""), Usage(
         input_tokens=usage.get("prompt_tokens", 0) or 0,
         output_tokens=usage.get("completion_tokens", 0) or 0,
         thinking_tokens=details.get("reasoning_tokens", 0) or 0,
-        seconds=time.perf_counter() - started)
+        seconds=time.perf_counter() - started,
+        cost_usd=float(usage.get("cost", 0) or 0),
+        resolved_model=str(data.get("model", "") or ""),
+        provider_name=str(data.get("provider", "") or ""))
 
 
 def describe(spec: ModelSpec) -> str:

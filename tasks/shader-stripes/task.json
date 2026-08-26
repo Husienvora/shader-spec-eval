@@ -1,0 +1,7 @@
+{
+  "id": "shader-stripes",
+  "description": "Exact one-dimensional repetition: six alternating stripes.",
+  "prompt": "Write a GLSL ES 3.0 fragment shader implementing mainImage(out vec4 fragColor, in vec2 fragCoord). iResolution (vec3) and iTime (float) are provided; do not redeclare them and do not write main(). Requirements: (1) divide the frame into EXACTLY six equal-width vertical stripes; (2) alternate near-black and bright magenta with hard edges; (3) stripes fill the entire height; (4) the output is static and ignores iTime; (5) no NaN output.",
+  "context": ["*.glsl", "*.json"],
+  "verify": ["python", "-m", "shader_spec_eval.shader.verify", "shader_spec.json"]
+}

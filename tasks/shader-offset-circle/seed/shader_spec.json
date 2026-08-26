@@ -1,0 +1,12 @@
+{
+  "file": "shader.glsl", "size": 256, "times": [0.0, 0.9, 1.8],
+  "properties": [
+    {"check": "not_blank"}, {"check": "no_nan_artifacts"},
+    {"check": "circle_at", "center_x": 0.30, "center_y": 0.65, "radius": 0.18, "tol": 0.035},
+    {"check": "sharp_edges", "min_ratio": 0.006},
+    {"check": "pixel_near", "x": 0.30, "y": 0.35, "rgb": [245, 35, 30], "tol": 35},
+    {"check": "pixel_near", "x": 0.95, "y": 0.05, "rgb": [4, 4, 4], "tol": 18},
+    {"check": "dominant_channel", "channel": "r", "margin": 10},
+    {"check": "stable_over_time", "max_delta": 3.0}
+  ]
+}

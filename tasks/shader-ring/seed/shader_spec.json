@@ -1,0 +1,14 @@
+{
+  "file": "shader.glsl", "size": 256, "times": [0.0, 0.8, 1.6],
+  "properties": [
+    {"check": "not_blank"}, {"check": "no_nan_artifacts"},
+    {"check": "ring_radii", "inner": 0.18, "outer": 0.30, "tol": 0.035},
+    {"check": "sharp_edges", "min_ratio": 0.012},
+    {"check": "pixel_near", "x": 0.50, "y": 0.50, "rgb": [3, 3, 3], "tol": 18},
+    {"check": "pixel_near", "x": 0.74, "y": 0.50, "rgb": [25, 90, 255], "tol": 45},
+    {"check": "symmetric", "kind": "horizontal", "tol": 12.0},
+    {"check": "symmetric", "kind": "vertical", "tol": 12.0},
+    {"check": "dominant_channel", "channel": "b", "margin": 10},
+    {"check": "stable_over_time", "max_delta": 3.0}
+  ]
+}

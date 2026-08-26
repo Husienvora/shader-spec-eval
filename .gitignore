@@ -9,5 +9,6 @@ dist/
 dist-test/
 build/
 results/latest/
+results/openrouter-*/
 *.log
 .env

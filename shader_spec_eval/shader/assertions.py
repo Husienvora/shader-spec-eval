@@ -144,6 +144,23 @@ def symmetric(frame: Frame, kind: str = "horizontal", tol: float = 14.0) -> Chec
     return Check(f"symmetric({kind})", mad <= tol, f"mean abs diff {mad:.1f} (tol {tol})")
 
 
+def asymmetric(frame: Frame, kind: str = "horizontal", min_delta: float = 20.0) -> Check:
+    """Require that a requested mirror symmetry is absent."""
+    n, step = frame.size, max(1, frame.size // 48)
+    diffs = []
+    for y in range(0, n, step):
+        for x in range(0, n, step):
+            a = frame.luma(x, y)
+            if kind == "horizontal":
+                b = frame.luma(n - 1 - x, y)
+            else:
+                b = frame.luma(x, n - 1 - y)
+            diffs.append(abs(a - b))
+    mad = sum(diffs) / len(diffs)
+    return Check(f"asymmetric({kind})", mad >= min_delta,
+                 f"mean abs diff {mad:.1f} (need >= {min_delta})")
+
+
 def radial_falloff(frame: Frame, min_delta: float = 20.0) -> Check:
     """Centre should differ from the corners — catches 'drew a flat disc'."""
     n = frame.size
@@ -301,24 +318,20 @@ def rotational_symmetry(frame: Frame, fold: int, tol: float = 12.0,
     return Check(f"rotational_symmetry({fold})", ok, detail)
 
 
-def circle_radius(frame: Frame, radius: float, tol: float = 0.04,
-                  min_contrast: float = 30.0, samples: int = 32) -> Check:
-    """Check that a centred bright/dark region has a circular boundary.
-
-    Symmetry plus a bright centre cannot distinguish a circle from a square.
-    Estimate the first foreground/background transition along multiple rays and
-    require every direction to meet the requested radius.
-    """
+def _circle_at(frame: Frame, center_x: float, center_y: float, radius: float,
+               tol: float, min_contrast: float, samples: int, name: str) -> Check:
     import math
     n = frame.size
-    c = (n - 1) / 2.0
-    centre = frame.luma(round(c), round(c))
+    # Task coordinates follow GLSL/fragCoord convention (origin at bottom-left),
+    # while captured image rows use an origin at the top-left.
+    cx, cy = center_x * (n - 1), (1.0 - center_y) * (n - 1)
+    centre = frame.luma(round(cx), round(cy))
     corners = [frame.luma(0, 0), frame.luma(n - 1, 0),
                frame.luma(0, n - 1), frame.luma(n - 1, n - 1)]
     background = sum(corners) / len(corners)
     contrast = abs(centre - background)
     if contrast < min_contrast:
-        return Check("circle_radius", False,
+        return Check(name, False,
                      f"centre/background contrast {contrast:.1f} (need >= {min_contrast})")
 
     threshold = (centre + background) / 2.0
@@ -329,8 +342,10 @@ def circle_radius(frame: Frame, radius: float, tol: float = 0.04,
         a = 2.0 * math.pi * i / samples
         transition = None
         for px in range(1, max_px + 1):
-            x = min(n - 1, max(0, round(c + math.cos(a) * px)))
-            y = min(n - 1, max(0, round(c + math.sin(a) * px)))
+            x = round(cx + math.cos(a) * px)
+            y = round(cy + math.sin(a) * px)
+            if not (0 <= x < n and 0 <= y < n):
+                break
             lum = frame.luma(x, y)
             outside = lum < threshold if centre_is_bright else lum > threshold
             if outside:
@@ -340,15 +355,125 @@ def circle_radius(frame: Frame, radius: float, tol: float = 0.04,
             radii.append(transition)
 
     if len(radii) < samples:
-        return Check("circle_radius", False,
-                     f"found boundaries on {len(radii)}/{samples} rays")
+        return Check(name, False, f"found boundaries on {len(radii)}/{samples} rays")
     errors = [abs(r - radius) for r in radii]
     ok = max(errors) <= tol
-    return Check("circle_radius", ok,
+    return Check(name, ok,
                  f"radii {min(radii):.3f}-{max(radii):.3f}, want {radius:.3f} +/-{tol:.3f}")
 
 
-def sharp_edges(frame: Frame, min_ratio: float = 0.010) -> Check:
+def circle_radius(frame: Frame, radius: float, tol: float = 0.04,
+                  min_contrast: float = 30.0, samples: int = 32) -> Check:
+    """Check that a centred bright/dark region has a circular boundary.
+
+    Symmetry plus a bright centre cannot distinguish a circle from a square.
+    Estimate the first foreground/background transition along multiple rays and
+    require every direction to meet the requested radius.
+    """
+    return _circle_at(frame, 0.5, 0.5, radius, tol, min_contrast, samples,
+                      "circle_radius")
+
+
+def circle_at(frame: Frame, center_x: float, center_y: float, radius: float,
+              tol: float = 0.04, min_contrast: float = 30.0,
+              samples: int = 32) -> Check:
+    """Check a circular boundary at a specified normalized coordinate."""
+    name = f"circle_at({center_x:.2f},{center_y:.2f})"
+    return _circle_at(frame, center_x, center_y, radius, tol, min_contrast, samples, name)
+
+
+def ring_radii(frame: Frame, inner: float, outer: float, tol: float = 0.04,
+               min_contrast: float = 30.0, samples: int = 32) -> Check:
+    """Estimate the inner and outer boundaries of a centred bright ring."""
+    import math
+    n = frame.size
+    c = (n - 1) / 2.0
+    mid_r = (inner + outer) / 2.0
+    ring_samples = []
+    background_samples = [frame.luma(round(c), round(c))]
+    for i in range(samples):
+        a = 2.0 * math.pi * i / samples
+        ring_samples.append(frame.luma(round(c + math.cos(a) * mid_r * n),
+                                       round(c + math.sin(a) * mid_r * n)))
+        probe = min(0.48, outer + 0.08)
+        background_samples.append(frame.luma(round(c + math.cos(a) * probe * n),
+                                             round(c + math.sin(a) * probe * n)))
+    ring_mean = sum(ring_samples) / len(ring_samples)
+    background = sum(background_samples) / len(background_samples)
+    if ring_mean < background + min_contrast:
+        return Check("ring_radii", False,
+                     f"ring/background contrast {ring_mean - background:.1f} "
+                     f"(need >= {min_contrast})")
+    threshold = (ring_mean + background) / 2.0
+    found_inner, found_outer = [], []
+    for i in range(samples):
+        a = 2.0 * math.pi * i / samples
+        states = []
+        for px in range(int(n * 0.49)):
+            x = round(c + math.cos(a) * px)
+            y = round(c + math.sin(a) * px)
+            states.append(frame.luma(x, y) >= threshold)
+        enter = next((j for j, state in enumerate(states) if state), None)
+        leave = (next((j for j in range((enter or 0) + 1, len(states))
+                       if not states[j]), None) if enter is not None else None)
+        if enter is not None and leave is not None:
+            found_inner.append(enter / n)
+            found_outer.append(leave / n)
+    if len(found_inner) < samples:
+        return Check("ring_radii", False,
+                     f"found two boundaries on {len(found_inner)}/{samples} rays")
+    error = max(max(abs(r - inner) for r in found_inner),
+                max(abs(r - outer) for r in found_outer))
+    return Check("ring_radii", error <= tol,
+                 f"inner {min(found_inner):.3f}-{max(found_inner):.3f}, "
+                 f"outer {min(found_outer):.3f}-{max(found_outer):.3f}; "
+                 f"want {inner:.3f}/{outer:.3f} +/-{tol:.3f}")
+
+
+def box_bounds(frame: Frame, half_width: float, half_height: float,
+               center_x: float = 0.5, center_y: float = 0.5,
+               tol: float = 0.04, min_contrast: float = 30.0) -> Check:
+    """Check the extents and filled corners of an axis-aligned rectangle."""
+    n = frame.size
+    cx, cy = round(center_x * (n - 1)), round(center_y * (n - 1))
+    foreground = frame.luma(cx, cy)
+    background = sum(frame.luma(x, y) for x, y in
+                     ((0, 0), (n - 1, 0), (0, n - 1), (n - 1, n - 1))) / 4
+    if abs(foreground - background) < min_contrast:
+        return Check("box_bounds", False, "insufficient foreground/background contrast")
+    bright = foreground > background
+    threshold = (foreground + background) / 2
+
+    def outside(x: int, y: int) -> bool:
+        lum = frame.luma(x, y)
+        return lum < threshold if bright else lum > threshold
+
+    extents = []
+    for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+        hit = None
+        for px in range(1, int(n * 0.49)):
+            x, y = cx + dx * px, cy + dy * px
+            if not (0 <= x < n and 0 <= y < n) or outside(x, y):
+                hit = px / n
+                break
+        extents.append(hit)
+    if any(value is None for value in extents):
+        return Check("box_bounds", False, f"missing boundary: {extents}")
+    expected = (half_width, half_width, half_height, half_height)
+    extent_ok = all(abs(got - want) <= tol for got, want in zip(extents, expected))
+    corner_ok = True
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            x = round((center_x + sx * half_width * 0.85) * (n - 1))
+            y = round((center_y + sy * half_height * 0.85) * (n - 1))
+            corner_ok &= not outside(x, y)
+    return Check("box_bounds", extent_ok and corner_ok,
+                 f"extents {[round(v, 3) for v in extents]}, "
+                 f"want {half_width:.3f}/{half_height:.3f}; filled corners={corner_ok}")
+
+
+def sharp_edges(frame: Frame, min_ratio: float = 0.010,
+                min_gradient: float = 70.0) -> Check:
     """A meaningful fraction of pixels sit on a hard boundary.
 
     Distinguishes a real signed-distance shape from a soft blur that happens to
@@ -361,7 +486,7 @@ def sharp_edges(frame: Frame, min_ratio: float = 0.010) -> Check:
             gx = abs(frame.luma(x + step, y) - frame.luma(x - step, y))
             gy = abs(frame.luma(x, y + step) - frame.luma(x, y - step))
             total += 1
-            if max(gx, gy) > 70:
+            if max(gx, gy) > min_gradient:
                 edge += 1
     ratio = edge / max(total, 1)
     return Check("sharp_edges", ratio >= min_ratio,
@@ -397,6 +522,36 @@ def distinct_bands(frame: Frame, count: int, axis: str = "x", tol: int = 1) -> C
                  f"found ~{got} bands, want {count} +/-{tol}")
 
 
+def centroid_moves(result: RenderResult, axis: str = "x", direction: str = "increasing",
+                   min_delta: float = 0.15, max_orthogonal_delta: float = 0.08) -> Check:
+    """Check directional motion of the rendered brightness centroid."""
+    if len(result.frames) < 2:
+        return Check("centroid_moves", False, "need >= 2 frames")
+
+    def centroid(frame: Frame) -> tuple[float, float]:
+        n, step = frame.size, max(1, frame.size // 64)
+        samples = [(x, y, frame.luma(x, y))
+                   for y in range(0, n, step) for x in range(0, n, step)]
+        baseline = min(value for _, _, value in samples)
+        total = sx = sy = 0.0
+        for x, y, value in samples:
+            weight = max(0.0, value - baseline)
+            total += weight
+            sx += weight * x / (n - 1)
+            sy += weight * y / (n - 1)
+        return (sx / total, sy / total) if total else (0.5, 0.5)
+
+    first, last = centroid(result.frames[0]), centroid(result.frames[-1])
+    idx = 0 if axis == "x" else 1
+    orth = 1 - idx
+    delta = last[idx] - first[idx]
+    directed = delta >= min_delta if direction == "increasing" else delta <= -min_delta
+    stable_orthogonal = abs(last[orth] - first[orth]) <= max_orthogonal_delta
+    return Check(f"centroid_moves({axis},{direction})", directed and stable_orthogonal,
+                 f"centroid {first[0]:.2f},{first[1]:.2f} -> "
+                 f"{last[0]:.2f},{last[1]:.2f}; delta={delta:+.2f}")
+
+
 # --------------------------------------------------------------------------
 # Dispatch — task.json names properties by string
 # --------------------------------------------------------------------------
@@ -409,10 +564,14 @@ FRAME_CHECKS = {
     "dominant_channels": dominant_channels,
     "gradient_along": gradient_along,
     "symmetric": symmetric,
+    "asymmetric": asymmetric,
     "radial_falloff": radial_falloff,
     "tiles": tiles,
     "rotational_symmetry": rotational_symmetry,
     "circle_radius": circle_radius,
+    "circle_at": circle_at,
+    "ring_radii": ring_radii,
+    "box_bounds": box_bounds,
     "sharp_edges": sharp_edges,
     "region_brighter": region_brighter,
     "distinct_bands": distinct_bands,
@@ -421,6 +580,7 @@ FRAME_CHECKS = {
 RESULT_CHECKS = {
     "animates": animates,
     "stable_over_time": stable_over_time,
+    "centroid_moves": centroid_moves,
 }
 
 

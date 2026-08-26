@@ -1,0 +1,7 @@
+{
+  "id": "shader-offset-circle",
+  "description": "Placed geometry: an off-centre circle with a specified radius.",
+  "prompt": "Write a GLSL ES 3.0 fragment shader implementing mainImage(out vec4 fragColor, in vec2 fragCoord). iResolution (vec3) and iTime (float) are provided; do not redeclare them and do not write main(). Use normalized coordinates with origin at the bottom-left. Requirements: (1) draw one filled red circle centered at (0.30, 0.65); (2) its radius is 0.18 of frame height; (3) use a near-black background and a hard boundary; (4) the shader is static and ignores iTime; (5) no NaN output.",
+  "context": ["*.glsl", "*.json"],
+  "verify": ["python", "-m", "shader_spec_eval.shader.verify", "shader_spec.json"]
+}

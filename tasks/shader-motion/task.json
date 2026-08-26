@@ -1,0 +1,7 @@
+{
+  "id": "shader-motion",
+  "description": "Directional temporal behavior: a circle translating to the right.",
+  "prompt": "Write a GLSL ES 3.0 fragment shader implementing mainImage(out vec4 fragColor, in vec2 fragCoord). iResolution (vec3) and iTime (float) are provided; do not redeclare them and do not write main(). Use normalized bottom-left coordinates. Requirements: (1) draw one filled white circle with radius 0.10 of frame height; (2) at iTime=0 its center is (0.25, 0.50); (3) it moves horizontally right at 0.25 frame-width units per second without vertical drift over the tested interval; (4) use a near-black background and hard edge; (5) no NaN output.",
+  "context": ["*.glsl", "*.json"],
+  "verify": ["python", "-m", "shader_spec_eval.shader.verify", "shader_spec.json"]
+}

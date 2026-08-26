@@ -49,6 +49,13 @@ class Cell:
     error: str = ""
     sampling_temperature: float | None = None
     sampling_seed: int | None = None
+    responses: list[str] = field(default_factory=list)
+    input_tokens: int = 0
+    output_tokens: int = 0
+    thinking_tokens: int = 0
+    cost_usd: float = 0.0
+    resolved_model: str = ""
+    provider_name: str = ""
 
     @property
     def passed(self) -> int:
@@ -70,15 +77,20 @@ class Cell:
 
     @property
     def scorable(self) -> bool:
-        return not self.transient
+        # Provider/harness failures are missing observations, not zero-quality shaders.
+        # Compiler failures have no infrastructure error and remain genuine zero scores.
+        return not self.transient and not self.error
 
     @property
     def perfect(self) -> bool:
         return self.total > 0 and self.passed == self.total
 
 
-def _strip_fences(text: str) -> str:
-    t = text.strip()
+def _strip_fences(text: str | None) -> str:
+    # A reasoning route can return JSON null after spending its output budget
+    # without emitting final content. Preserve that as an empty first attempt
+    # so it is checkpointed and scored instead of crashing or being regenerated.
+    t = (text or "").strip()
     if t.startswith("```"):
         lines = t.splitlines()
         lines = lines[1:]
@@ -121,7 +133,7 @@ def run_cell(spec: ModelSpec | str, task_id: str, cfg: Config,
     for attempt in range(cfg.compile_retries + 1):
         cell.attempts = attempt + 1
         try:
-            text, _ = call(spec, convo, SYSTEM, cfg)
+            text, usage = call(spec, convo, SYSTEM, cfg)
         except TransientError as exc:
             cell.transient = True
             cell.error = f"rate-limited: {exc}"
@@ -132,6 +144,13 @@ def run_cell(spec: ModelSpec | str, task_id: str, cfg: Config,
             cell.seconds = time.perf_counter() - t0
             return cell
 
+        cell.responses.append(text)
+        cell.input_tokens += usage.input_tokens
+        cell.output_tokens += usage.output_tokens
+        cell.thinking_tokens += usage.thinking_tokens
+        cell.cost_usd += usage.cost_usd
+        cell.resolved_model = usage.resolved_model or cell.resolved_model
+        cell.provider_name = usage.provider_name or cell.provider_name
         cell.source = _strip_fences(text)
         result = render(cell.source,
                         times=shader_spec.get("times", [0.0]),
@@ -180,6 +199,13 @@ def save_cells(cells: list[Cell], path: Path) -> None:
         "transient": c.transient, "attempts": c.attempts,
         "sampling_temperature": c.sampling_temperature,
         "sampling_seed": c.sampling_seed,
+        "responses": c.responses,
+        "input_tokens": c.input_tokens,
+        "output_tokens": c.output_tokens,
+        "thinking_tokens": c.thinking_tokens,
+        "cost_usd": c.cost_usd,
+        "resolved_model": c.resolved_model,
+        "provider_name": c.provider_name,
     } for c in cells], indent=1), encoding="utf-8")
 
 
@@ -192,7 +218,14 @@ def load_cells(path: Path) -> list[Cell]:
                  error=d["error"], transient=d.get("transient", False),
                  attempts=d.get("attempts", 1),
                  sampling_temperature=d.get("sampling_temperature"),
-                 sampling_seed=d.get("sampling_seed"))
+                 sampling_seed=d.get("sampling_seed"),
+                 responses=d.get("responses", []),
+                 input_tokens=d.get("input_tokens", 0),
+                 output_tokens=d.get("output_tokens", 0),
+                 thinking_tokens=d.get("thinking_tokens", 0),
+                 cost_usd=d.get("cost_usd", 0.0),
+                 resolved_model=d.get("resolved_model", ""),
+                 provider_name=d.get("provider_name", ""))
         c.checks = [Check(k["name"], k["passed"], k["detail"]) for k in d["checks"]]
         out.append(c)
     return out

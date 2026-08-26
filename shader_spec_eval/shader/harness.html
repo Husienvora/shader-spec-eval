@@ -69,7 +69,12 @@ window.renderShader = function (source, opts) {
   const hasMainImage = /\bvoid\s+mainImage\s*\(/.test(source);
   let frag;
   if (hasMainImage && !hasMain) {
-    frag = PRELUDE + '\n' + source + '\n' + EPILOGUE;
+    // A #version directive is legal only as the first directive. Models may
+    // include it even when returning a Shadertoy-style mainImage function.
+    // PRELUDE already supplies the required version, so remove only that
+    // leading directive before wrapping; preserve every substantive token.
+    const body = source.replace(/^\s*#version[^\r\n]*(?:\r?\n)?/, '');
+    frag = PRELUDE + '\n' + body + '\n' + EPILOGUE;
   } else if (source.trim().startsWith('#version')) {
     frag = source;
   } else {

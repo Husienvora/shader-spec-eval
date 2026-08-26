@@ -17,3 +17,5 @@ class Config:
     sampling_seed: int = 7
     compile_retries: int = 1
     request_timeout_s: int = 900
+    max_cost_usd: float | None = None
+    openrouter_allow_fallbacks: bool = False

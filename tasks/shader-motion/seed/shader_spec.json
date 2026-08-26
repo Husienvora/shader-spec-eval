@@ -1,0 +1,10 @@
+{
+  "file": "shader.glsl", "size": 256, "times": [0.0, 0.33, 0.67, 1.0],
+  "properties": [
+    {"check": "not_blank"}, {"check": "no_nan_artifacts"},
+    {"check": "circle_at", "center_x": 0.25, "center_y": 0.50, "radius": 0.10, "tol": 0.03},
+    {"check": "sharp_edges", "min_ratio": 0.004},
+    {"check": "animates", "min_delta": 4.0},
+    {"check": "centroid_moves", "axis": "x", "direction": "increasing", "min_delta": 0.20, "max_orthogonal_delta": 0.05}
+  ]
+}

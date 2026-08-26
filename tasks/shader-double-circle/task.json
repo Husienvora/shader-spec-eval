@@ -1,0 +1,7 @@
+{
+  "id": "shader-double-circle",
+  "description": "Spatial composition: two equal circles in a symmetric relationship.",
+  "prompt": "Write a GLSL ES 3.0 fragment shader implementing mainImage(out vec4 fragColor, in vec2 fragCoord). iResolution (vec3) and iTime (float) are provided; do not redeclare them and do not write main(). Use normalized bottom-left coordinates. Requirements: (1) draw exactly two filled white circles centered at (0.30, 0.50) and (0.70, 0.50); (2) both radii are 0.13 of frame height; (3) the midpoint between them remains near-black; (4) use hard edges and a near-black background; (5) the shader is static and ignores iTime; (6) no NaN output.",
+  "context": ["*.glsl", "*.json"],
+  "verify": ["python", "-m", "shader_spec_eval.shader.verify", "shader_spec.json"]
+}

@@ -1,0 +1,41 @@
+{
+  "study_id": "temperature-controlled-v0.3",
+  "manifest": "F:\\porjects\\youtube-channel\\videos\\ai-coding-bill\\cascade\\shader-spec-eval\\research\\openrouter-temperature-study-v0.3.json",
+  "temperature": 0.7,
+  "base_seed": 1,
+  "repeats": 10,
+  "tasks": [
+    "shader-gradient",
+    "shader-gradient-diagonal",
+    "shader-bands",
+    "shader-stripes",
+    "shader-tile",
+    "shader-grid",
+    "shader-sdf",
+    "shader-offset-circle",
+    "shader-ring",
+    "shader-box",
+    "shader-double-circle",
+    "shader-mirror",
+    "shader-pulse",
+    "shader-motion",
+    "shader-polar"
+  ],
+  "models": [
+    "openrouter:google/gemini-3.7-flash",
+    "openrouter:moonshotai/kimi-k2.7-code",
+    "openrouter:x-ai/grok-4.5",
+    "openrouter:qwen/qwen3-coder"
+  ],
+  "paid_models": [
+    "openrouter:google/gemini-3.7-flash",
+    "openrouter:moonshotai/kimi-k2.7-code",
+    "openrouter:x-ai/grok-4.5",
+    "openrouter:qwen/qwen3-coder"
+  ],
+  "local_models": [],
+  "max_output_tokens": 2048,
+  "max_cost_usd": 5.0,
+  "primary_first_attempt_only": true,
+  "provider_fallbacks": false
+}
