@@ -12,3 +12,7 @@ results/latest/
 results/openrouter-*/
 *.log
 .env
+
+# local production files, not part of the published benchmark
+/video/
+/paper/paper.md
